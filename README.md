@@ -14,15 +14,6 @@ It intentionally excludes manuscript sources, referee-response files, submission
 - `figures/supplementary/`: final supplementary figure PDFs
 - `requirements.txt`: Python dependencies
 
-## Excluded on Purpose
-
-- manuscript TeX sources
-- supplementary TeX sources
-- marked-up revision files
-- response-to-referees files
-- submission checklists and journal packaging
-- large raw result dumps, logs, caches, and temporary binaries
-
 ## Quick Start
 
 Create an environment and install dependencies:
