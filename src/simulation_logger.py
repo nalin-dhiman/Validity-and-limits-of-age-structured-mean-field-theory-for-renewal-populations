@@ -10,28 +10,19 @@ import uuid
 
 class SimulationLogger:
     def __init__(self, script_name, config, out_file):
-        """
-        Initialize the logger.
-        
-        Args:
-            script_name (str): Name of the script running (e.g., 'simulate_population.py').
-            config (dict): The configuration dictionary.
-            out_file (str): The primary output file path (e.g., 'results/run_X.npz').
-        """
+       
         self.script_name = script_name
         self.config = config
         self.out_file = out_file
         self.run_id = str(uuid.uuid4())
         self.timestamp = datetime.datetime.now().isoformat()
         
-        # Determine output prefix for logs
-        # E.g., results/run_X.npz -> results/logs/run_X
+
         out_abs = os.path.abspath(out_file)
         base_dir = os.path.dirname(out_abs)
         file_name = os.path.basename(out_abs)
         base_name = os.path.splitext(file_name)[0]
         
-        # Standard Log Directory
         self.log_dir = os.path.join(base_dir, 'logs')
         os.makedirs(self.log_dir, exist_ok=True)
         
@@ -40,18 +31,13 @@ class SimulationLogger:
         self.stderr_path = f"{self.log_prefix}.err"
         self.meta_path = f"{self.log_prefix}.meta.json"
         
-        # Open Log Files
         self.stdout_f = open(self.stdout_path, 'w')
         self.stderr_f = open(self.stderr_path, 'w')
         
-        # Redirect
         self.original_stdout = sys.stdout
         self.original_stderr = sys.stderr
         
-        # We Tee to both console and file, or just file?
-        # Requirement: "No silent failures". So we probably want to capture everything to file for audit.
-        # But we also want to see progress on term.
-        # Let's implement a Tee.
+       
         sys.stdout = Tee(self.original_stdout, self.stdout_f)
         sys.stderr = Tee(self.original_stderr, self.stderr_f)
         
@@ -61,13 +47,11 @@ class SimulationLogger:
         """
         Write comprehensive metadata to a JSON file.
         """
-        # Git Hash
         try:
             git_hash = subprocess.check_output(['git', 'rev-parse', 'HEAD'], stderr=subprocess.DEVNULL).decode().strip()
         except:
             git_hash = "unknown"
             
-        # CPU Count
         try:
             import multiprocessing
             cpu_count = multiprocessing.cpu_count()
@@ -86,8 +70,7 @@ class SimulationLogger:
             "config": self.config
         }
         
-        # Extract Key Physics Params for Searchability
-        # (Assuming standard config structure)
+        
         try:
             meta['N'] = self.config.get('population', {}).get('N')
             meta['J'] = self.config.get('coupling', {}).get('J')
@@ -98,7 +81,6 @@ class SimulationLogger:
             
             pde = self.config.get('pde', {})
             meta['closure'] = 'jensen' if pde.get('use_jensen') else 'no_jensen'
-            # Check for age_only implicitly via logic in simulation, but config might not say it explicit
             
         except Exception:
             pass
@@ -107,10 +89,7 @@ class SimulationLogger:
             json.dump(meta, f, indent=4)
             
     def close(self, exit_code=0):
-        """
-        Close logs and update metadata with exit status.
-        """
-        # Update metadata with exit code and end time
+       
         try:
             with open(self.meta_path, 'r') as f:
                 meta = json.load(f)
