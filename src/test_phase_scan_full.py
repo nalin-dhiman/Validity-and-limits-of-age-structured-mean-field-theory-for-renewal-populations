@@ -4,10 +4,7 @@ import shutil
 import argparse
 
 sys.path.append(os.path.join(os.path.dirname(__file__), '../src'))
-# Import run_scan, but we need to monkeypatch or modify it to run small grid?
-# Or just import run_point/analyze parts.
-# Easier to modify run_phase_scan.py to accept arg for "test mode" or write a separate caller.
-# I'll enable importing run_scan and modify the grid inside if args say so, or just write a custom flow here reproducing run_scan logic.
+
 
 from run_phase_scan import run_point, run_scan
 from utils import load_config, ensure_dir
@@ -22,10 +19,8 @@ def run_test_scan():
     
     cfg_path = 'configs/base.yaml'
     cfg = load_config(cfg_path)
-    # Reduced Duration
     cfg['duration'] = 5.0 
     
-    # Small Grid: J in [0, 1.0, 2.0], c in [0, 0.5]
     Js = [0.0, 1.0, 2.0]
     cs = [0.0, 0.5]
     seeds = [0]
@@ -40,10 +35,7 @@ def run_test_scan():
     for task in tasks:
         run_point(task)
         
-    # Analyze
-    # Copy-paste analysis logic from run_phase_scan.py to verifying it works
-    # Or rely on run_phase_scan.py if I can import analyze?
-    # I'll just check if files exist and run a mini-analysis here.
+   
     
     results = []
     for task in tasks:
@@ -52,10 +44,8 @@ def run_test_scan():
         path = os.path.join(out_dir, fname)
         if os.path.exists(path):
             results.append({'J': J, 'c': c, 'NRMSE': 0.1 * J}) # Fake data if load fails? No load it.
-            # Load real
             try:
                 data = np.load(path)
-                # Just check structure
                 if 'A' in data:
                     print(f"Verified output for J={J} c={c}")
             except:
