@@ -1,62 +1,91 @@
-# Validity and Limits of Age-Structured Mean-Field Theory for Renewal Populations
+# Dynamic joint-moment closure for renewal neuron populations
 
-This branch is a clean code-and-data release for the renewal-population study.
-It intentionally excludes manuscript sources, referee-response files, submission bundles, and other journal-facing material.
+This repository is the code-and-data release for the audited age-structured
+renewal-population study. It contains the predictive dynamic joint-Gaussian
+closure, the two lower-order comparison closures, matched microscopic
+simulations, processed numerical results, regression tests, and figure
+generation code.
 
-## Included
+Journal manuscript sources, referee correspondence, LaTeX files, and
+submission archives are intentionally excluded.
 
-- `src/`: simulation, PDE, analysis, and validation code
-- `scripts/`: runnable shell and Python scripts, including figure regeneration
-- `configs/`: YAML configurations used by the simulations
-- `tests/`: lightweight regression tests for the PDE and age-adaptation components
-- `data/`: processed CSV summaries used for the reported figures
-- `figures/main/`: final main-text figure PDFs
-- `figures/supplementary/`: final supplementary figure PDFs
-- `requirements.txt`: Python dependencies
+## Repository layout
 
-## Quick Start
+- `src/age_joint_gaussian_pde.py`: predictive joint mean/variance/covariance
+  closure with hazard-tilted loss and conservative reinjection
+- `src/age_adaptation_pde.py`: mean-only and prescribed-variance closures
+- `src/run_corrected_study.py`: audited baseline, scaling, feedback, and
+  convergence studies
+- `src/run_extended_study.py`: cross-parameter, conditional-moment, transient,
+  adaptation, and accuracy-cost studies
+- `scripts/make_corrected_revision_figures.py`: regenerates all tracked plots
+- `configs/base.yaml`: authoritative model and numerical configuration
+- `tests/`: solver, conservation, metric, configuration-isolation, and
+  covariance-integrity tests
+- `data/corrected/`: audited lower-order closure results
+- `data/extended/`: diagnostic and strengthening-study results
+- `data/joint/`: predictive joint-closure results
+- `figures/main/` and `figures/supplementary/`: generated plot PDFs
 
-Create an environment and install dependencies:
+## Installation
+
+Python 3.10 or newer is recommended.
 
 ```bash
 python -m venv .venv
 source .venv/bin/activate
-pip install -r requirements.txt
+python -m pip install --upgrade pip
+python -m pip install -r requirements.txt
 ```
 
-Run the lightweight test suite:
+## Verify the release
+
+Run the complete lightweight regression suite from the repository root:
 
 ```bash
-python -m pytest tests/test_pde_solver.py tests/test_age_adaptation.py -q
+python -m pytest -q tests
 ```
 
-Regenerate the figure PDFs from the processed CSV summaries:
+Regenerate all tracked plots from the included processed CSV files:
 
 ```bash
-python scripts/make_paper_figures.py
+python scripts/make_corrected_revision_figures.py
 ```
 
-The regenerated figure files are written to:
+The plot script writes to `figures/main/` and
+`figures/supplementary/`. Legends are placed outside the plotting axes.
 
-- `figures/main/`
-- `figures/supplementary/`
+## Recompute the numerical studies
 
-## Reproducing the Main Analysis
-
-Many scripts assume they are launched from the repository root.
-Examples:
+The full simulations can be computationally expensive. Run:
 
 ```bash
-python src/check_bias_fix.py
-python src/run_scaling.py --out_dir results/scaling_full
-python src/check_variance.py
-python src/run_weak_coupling_validation.py
+python src/run_corrected_study.py \
+  --config configs/base.yaml \
+  --outdir results/corrected_revision
+
+python src/run_extended_study.py \
+  --config configs/base.yaml \
+  --section all \
+  --outdir results/joint_revision
 ```
 
-To run the broader scripted pipeline:
+Both drivers record solver identity, model parameters, grid resolution,
+covariance diagnostics, coupling mode, metric normalization, and random seeds
+in their outputs. Monte Carlo and PDE feedback variables are evolved
+independently.
 
-```bash
-bash scripts/run_phaseIX_full_suite.sh
-```
+After recomputation, rerun the plotting command. The plotting script
+automatically prefers generated `results/` over the tracked processed data.
 
-That pipeline will create a local `results/` directory at runtime; these generated outputs are intentionally not tracked in Git on this clean branch.
+## Metric convention
+
+All activity quantities are in hertz:
+
+- `bias = mean(A_closure - A_MC)`
+- RMSE and centered RMSE are dimensional errors in hertz
+- NRMSE is RMSE divided by the temporal standard deviation of the smoothed
+  microscopic reference
+
+The deterministic joint closure is compared with the same adapted microscopic
+model and external-input realization as the other closures.

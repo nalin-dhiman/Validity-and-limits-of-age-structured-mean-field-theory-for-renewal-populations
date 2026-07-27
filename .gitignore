@@ -15,8 +15,17 @@ logs/
 *.aux
 *.blg
 *.bbl
+*.tex
+*.zip
 
 *.npz
 *.npy
+
+paper/
+supplement/
+revision_package/
+submission*/
+htmlcov/
+.coverage
 
 .DS_Store

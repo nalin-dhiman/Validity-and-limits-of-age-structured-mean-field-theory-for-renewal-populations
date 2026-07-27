@@ -8,6 +8,6 @@ class PDESafetyError(Exception):
         self.value = value
         self.threshold = threshold
         self.hint = hint
-        
+
         msg = f"PDE Safety Guard [{guard_name}] ({severity.upper()}) Failed: Value={value:.2e} > Threshold={threshold:.2e}. {hint}"
         super().__init__(msg)

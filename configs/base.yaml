@@ -12,7 +12,10 @@ neuron:
   tau_m: 0.02
 pde:
   R_max: auto
+  age_domain_s: 2.0
   dr: 0.001
+  use_jensen: true
+  model_kappa_override: null
 population:
   N: 2000
   shared_noise_fraction: 0.0

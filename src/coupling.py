@@ -4,7 +4,7 @@ class MeanFieldCoupling:
         self.tau_s = tau_s
         self.dt = dt
         self.x = 0.0
-        
+
     def step(self, A_prev):
         """
         Update synaptic variable x.
@@ -14,10 +14,10 @@ class MeanFieldCoupling:
         dx = (-self.x + A_prev) * (self.dt / self.tau_s)
         self.x += dx
         return self.x # Return raw state, access output property for J*x
-    
+
     @property
     def output(self):
         return self.J * self.x
-    
+
     def reset(self):
         self.x = 0.0
